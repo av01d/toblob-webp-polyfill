@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>canvas.toBlob WebP Polyfill</title>
+	<style>
+	body {
+		background-color: #fff;
+		color: #000;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+	}
+
+	main {
+		border: 4px solid #000;
+		border-radius: 8px;
+		box-shadow: 0 4px 16px -4px #53687E;
+		max-width: 768px;
+		margin: 1rem auto;
+		padding: 2rem;
+		max-width: 580px;
+	}
+
+	.grid {
+		display: grid;
+		grid-template-columns: 50% 50%;
+		gap: 10px;
+	}
+
+	#input, #output {
+		border: 1px solid #4caf50;
+		margin-bottom: 10px;
+		padding: 10px;
+		background-color: #eee;
+	}
+
+	.grid canvas, .grid img {
+		display: block;
+		max-width: 100%;
+	}
+
+	h1 {
+		font-weight: 700;
+		text-align: center;
+		margin-top: 0;
+	}
+
+	h3 {
+		text-align: center;
+		margin-bottom: 0;
+	}
+
+	button {
+		width: 100%;
+		background-color: #4caf50;
+		color: #fff;
+		padding: 5px 10px;
+		text-align: center;
+		display: inline-block;
+		font-size: 16px;
+		border-radius: 5px;
+		border: 1px solid #080;
+		margin: 2px 0;
+		cursor: pointer;
+	}
+
+	hr {
+		width: 100%;
+		margin: 5px 0;
+	}
+
+	#base64url {
+		width: 100%;
+		height: 100%;
+	}
+
+	input[type="file"] {
+		display: none;
+	}
+
+	#dropzone {
+		transition: border-color 200ms ease-in;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 4px dashed #4caf50;
+		width: 100%;
+		min-height: 150px;
+		background: #eee;
+	}
+
+	#dropzone.active {
+		border-color: #6b4e71;
+	}
+
+	#dropzone:hover {
+		cursor: pointer;
+	}
+
+	</style>
+	<script src="dist/toblob-webp-polyfill.min.js"></script>
+</head>
+<body>
+<main>
+    <h1>canvas.toBlob WebP Polyfill</h1>
+
+	<div id="dropzone">
+		Click to upload image, or drop an image here
+		<input type="file">
+  	</div>
+
+    <div class="grid">
+    	<h3>Input</h2>
+    	<h3>Output</h2>
+    	<div id="input">
+	 		<canvas id="canvas" width="279" height="371"></canvas>
+	 	</div>
+	 	<div id="output">
+	 	</div>
+
+	 	<div>
+	 		<button onclick="showImage('webp')">Show as WebP</button>
+			<button onclick="showImage('png')">Show as PNG</button>
+			<button onclick="showImage('jpg')">Show as JPG</button>
+			<hr>
+			<button onclick="downloadImage('webp')">Download as .webp</button>
+			<button onclick="downloadImage('jpg')">Download as .jpg</button>
+			<button onclick="downloadImage('png')">Download as .png</button>
+			<hr>
+			<button onclick="getBase64Url('webp')">Get Base64 url</button>
+	 	</div>
+	 	<div>
+	 		<textarea id="base64url" style="width:100%;height:100%"></textarea>
+	 	</div>
+	</div>
+</main>
+
+<script>
+
+//
+// Drag & Drop
+//
+const dropzone = document.querySelector('#dropzone');
+const input = document.querySelector('input[type="file"]');
+
+input.addEventListener('change', async e => {
+	const [file] = input.files;
+	return createImage(file);
+});
+dropzone.addEventListener('click', () => input.click());
+dropzone.addEventListener('dragstart', e => {});
+dropzone.addEventListener('dragenter', e => {
+	dropzone.classList.add('active');
+});
+dropzone.addEventListener('dragleave', e => {
+	dropzone.classList.remove('active');
+});
+dropzone.addEventListener('dragover', e => e.preventDefault());
+dropzone.addEventListener('drop', async e => {
+	e.preventDefault();
+	dropzone.classList.remove('active');
+	const { dataTransfer: { files: [file] = [] } = {} } = e || {};
+	return createImage(file);
+});
+
+const handleFile = async img => {
+	const canvas = document.querySelector('#input canvas');
+	const ctx = canvas.getContext('2d');
+	canvas.width = img.naturalWidth;
+	canvas.height = img.naturalHeight;
+	ctx.drawImage(img, 0, 0);
+}
+
+const createImage = d => {
+	const url = URL.createObjectURL(d);
+	const img = new Image();
+	img.src = url;
+	img.onload = async () => handleFile(img);
+};
+
+//
+// /Drag & Drop
+//
+
+const img = new Image();
+img.onload = function() {
+	document.getElementById('canvas').getContext('2d').drawImage(this,0,0);
+};
+img.src = 'smurf.png';
+
+function downloadImage(type) {
+	const map = {
+		'jpg': 'image/jpeg',
+		'webp': 'image/webp',
+		'png': 'image/png'
+	};
+
+	const canvas = document.querySelector('#input canvas');
+	const ctx = canvas.getContext('2d');
+
+	canvas.toBlob(function(blob) {
+		let URLObj = window.URL || window.webkitURL;
+		let a = document.createElement('a');
+		const url = URLObj.createObjectURL(blob);
+    	a.href = url;
+    	a.download = 'untitled.' + type;
+    	a.click();
+	}, map[type], 0.1);
+}
+
+function showImage(type) {
+	const map = {
+		'jpg': 'image/jpeg',
+		'webp': 'image/webp',
+		'png': 'image/png'
+	};
+
+	const canvas = document.querySelector('#input canvas');
+	const img = new Image();
+	canvas.toBlob(function(blob) {
+		const url = window.URL || window.webkitURL;
+		img.src = url.createObjectURL(blob);
+	}, map[type], 0.8);
+
+	const ctr = document.querySelector('#output');
+	ctr.innerHTML = '';
+	ctr.appendChild(img);
+}
+
+function getBase64Url(type) {
+	const map = {
+		'jpg': 'image/jpeg',
+		'webp': 'image/webp',
+		'png': 'image/png'
+	};
+
+	const canvas = document.getElementById('canvas');
+	canvas.toBlob(function(blob) {
+		const reader = new FileReader();
+		reader.onloadend = function() {
+			//console.log(reader.result);
+			document.querySelector('#base64url').value = reader.result;
+		}
+		reader.readAsDataURL(blob);
+	}, map[type], 0.8);
+}
+
+</script>
+
+</body>
+</html>
