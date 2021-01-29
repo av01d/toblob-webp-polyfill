@@ -46,6 +46,14 @@ canvas.toBlob(function(blob) {
 
 ```
 
+There are some configuration parameters in file `toblob-webp-polyfill.js`.
+You can set `useAlpha` (boolean) to false to disable support for alpha channels.
+
+The `webpOptions` object allows for tuning the options for the WebP encoder.
+More info on the available options can be found on the web:
+https://developers.google.com/speed/webp/docs/cwebp
+https://imagemagick.org/script/webp.php
+
 [⬆ back to top](#table-of-contents)
 
 ## Browser support

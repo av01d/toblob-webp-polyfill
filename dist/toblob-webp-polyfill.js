@@ -16,8 +16,8 @@
  * Made by Arjan Haverkamp, https://www.webgear.nl
  * Copyright 2021 Arjan Haverkamp
  * MIT Licensed
- * @version 1.0 - 2021-01-30
- * @url https://github.com/av01d/image-webp-polyfill
+ * @version 1.0 - 2021-01-29
+ * @url https://github.com/av01d/toblob-webp-polyfill
  */
 
 (function() {
