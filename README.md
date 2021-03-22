@@ -1,6 +1,6 @@
 # canvas.toBlob WebP Polyfill
 
-Google Chrome and MS Edge > 18 can creata a WebP Blob representing the
+Google Chrome and MS Edge > 18 can create a WebP Blob representing the
 image contained in a canvas:
 ```
 canvas.toBlob(callback, 'image/webp', 0.8);
