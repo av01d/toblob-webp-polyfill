@@ -25,7 +25,7 @@ https://github.com/saschazar21/webassembly/tree/master/packages/webp
 ### Installation
 
 Copy the files in the `dist` directory in your document root.
-Include `dist/toblob-webp-polyfill.js' in your page:
+Include `dist/toblob-webp-polyfill.js` in your page:
 ```html
 <script src="/path/to/dist/toblob-webp-polyfill.js"></script>
 ```
